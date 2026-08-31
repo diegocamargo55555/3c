@@ -1,0 +1,13 @@
+services:
+  nginx:
+    container_name: nginx
+    build:
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+  debian:
+    container_name: debian_nginx
+    build:
+      dockerfile: Dockerfilecopy
+    ports:
+      - "8090:80"
