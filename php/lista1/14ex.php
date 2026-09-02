@@ -1,6 +1,6 @@
 <?php
 
-$variables = ["fiat uno", 3.14, "pi", true, false, 67];
+$variables = ["fiat uno", 3.14, "pi", "true", false, 67];
 
 foreach ($variables as $var) {
     echo "\n---------\n$var is int? ", (is_int($var) ? "sim" : "não");
