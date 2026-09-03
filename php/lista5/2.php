@@ -19,5 +19,5 @@ $array = [
 ];
 
 foreach ($array as $key => $value) {
-    print_r($value);
+    echo "Aluno:" . $value["nome"] . " Idade:" . $value["idade"] . "\n";
 }
