@@ -3,13 +3,13 @@
 require_once __DIR__ . '/validation.php';
 require_once __DIR__ . '/data.php';
 
-function getAllUsers(string $dataFile): array
+function getAllUsers(): array
 {
-    $data = loadData($dataFile);
+    $data = loadData();
     return ['users' => $data['users']];
 }
 
-function createUser(string $dataFile, ?array $input): array
+function createUser(?array $input): array
 {
     if (!is_array($input)) {
         return ['error' => 'Invalid JSON body', 'status' => 400];
@@ -25,7 +25,7 @@ function createUser(string $dataFile, ?array $input): array
         return ['error' => $error, 'status' => 400];
     }
 
-    $user = insertUser($dataFile, [
+    $user = insertUser([
         'name' => trim($input['name']),
         'age' => (int) $input['age'],
         'email' => $input['email'],
@@ -34,7 +34,7 @@ function createUser(string $dataFile, ?array $input): array
     return ['data' => $user, 'status' => 201];
 }
 
-function editUser(string $dataFile, ?int $id, ?array $input, bool $partial = false): array
+function editUser(?int $id, ?array $input, bool $partial = false): array
 {
     if ($id === null) {
         return ['error' => 'User id is required', 'status' => 400];
@@ -67,7 +67,7 @@ function editUser(string $dataFile, ?int $id, ?array $input, bool $partial = fal
         $fields['age'] = (int) $fields['age'];
     }
 
-    $user = updateUser($dataFile, $id, $fields);
+    $user = updateUser($id, $fields);
 
     if ($user === null) {
         return ['error' => 'User not found', 'status' => 404];
@@ -76,13 +76,13 @@ function editUser(string $dataFile, ?int $id, ?array $input, bool $partial = fal
     return ['data' => $user, 'status' => 200];
 }
 
-function removeUser(string $dataFile, ?int $id): array
+function removeUser(?int $id): array
 {
     if ($id === null) {
         return ['error' => 'User id is required', 'status' => 400];
     }
 
-    $user = deleteUser($dataFile, $id);
+    $user = deleteUser($id);
 
     if ($user === null) {
         return ['error' => 'User not found', 'status' => 404];

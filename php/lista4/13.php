@@ -4,7 +4,7 @@ $str = 42;
 $string = strval($str); 
 
 $string2 = strval($str);
-for ($i=0; 10 > strlen($string2) ; $i++) { 
+for ($i=0; 6 > strlen($string2) ; $i++) { 
     $string2 = "0".$string2;
 }
 
