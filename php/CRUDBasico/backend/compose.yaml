@@ -1,5 +1,0 @@
-services:
-  php-server:
-    build: .
-    ports:
-      - "8000:80"
