@@ -1,11 +1,17 @@
 {
-    "nextId": 2,
+    "nextId": 3,
     "users": [
         {
             "name": "Diego",
             "age": 5,
             "email": "diegocamargo55555@gmail.com",
             "id": 1
+        },
+        {
+            "name": "2321",
+            "age": 23,
+            "email": "diegocamargo55555@gmail.com",
+            "id": 2
         }
     ]
 }
