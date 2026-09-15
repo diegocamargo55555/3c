@@ -1,0 +1,26 @@
+{
+    "nextId": 4,
+    "products": [
+        {
+            "name": "Diego",
+            "price": 5,
+            "estoque": 55,
+            "phone": "14092323",
+            "id": 1
+        },
+        {
+            "name": "Die4go",
+            "price": 5,
+            "estoque": 55,
+            "phone": "14092323",
+            "id": 2
+        },
+        {
+            "name": "Die4go",
+            "price": 56,
+            "estoque": 55,
+            "phone": "14092323",
+            "id": 3
+        }
+    ]
+}

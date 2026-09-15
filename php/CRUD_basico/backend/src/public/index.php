@@ -4,8 +4,7 @@ require_once __DIR__ . '/../config/config.php';
 
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 
-in_array($origin, $allowedOrigins) ?
-    header("Access-Control-Allow-Origin: $origin") : null;
+in_array($origin, $allowedOrigins) ? header("Access-Control-Allow-Origin: $origin") : null;
 header('Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
