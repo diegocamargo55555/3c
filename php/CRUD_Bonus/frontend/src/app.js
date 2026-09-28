@@ -3,19 +3,19 @@ import { createUser } from './scripts/api/create.js';
 import { deleteUser } from './scripts/api/delete.js';
 import { updateUser, patchUser } from './scripts/api/update.js';
 
-const apiUrl = 'http://localhost:8000/api/products';
+const apiUrl = 'http://localhost:8000/api/users';
 
 // Referências do DOM
-const form = document.getElementById('create-product-form');
+const form = document.getElementById('create-user-form');
 const formError = document.getElementById('form-error');
 const formTitle = document.getElementById('form-title');
 const submitBtn = form.querySelector('button[type="submit"]');
 const cancelBtn = document.getElementById('cancel-edit');
-const usersSection = document.getElementById('products');
+const usersSection = document.getElementById('users');
 
 // Estado de edição
 let editingId = null;
-let originalProduct = null;
+let originalUser = null;
 
 // --- Helpers de erro ---
 function showError(message) {
@@ -34,14 +34,13 @@ function getUserFromCard(button) {
     return findUserById(Number(card.id));
 }
 
-function enterEditMode(product) {
-    editingId = product.id;
-    originalProduct = { ...product };
-    document.getElementById('name').value = product.name;
-    document.getElementById('price').value = product.price;
-    document.getElementById('estoque').value = product.estoque;
-    document.getElementById('phone').value = product.phone;
-    formTitle.textContent = 'Edit Product';
+function enterEditMode(user) {
+    editingId = user.id;
+    originalUser = { ...user };
+    document.getElementById('name').value = user.name;
+    document.getElementById('age').value = user.age;
+    document.getElementById('email').value = user.email;
+    formTitle.textContent = 'Edit User';
     submitBtn.textContent = 'Update';
     cancelBtn.style.display = '';
     document.getElementById('name').focus();
@@ -49,8 +48,8 @@ function enterEditMode(product) {
 
 function exitEditMode() {
     editingId = null;
-    originalProduct = null;
-    formTitle.textContent = 'Create Product';
+    originalUser = null;
+    formTitle.textContent = 'Create User';
     submitBtn.textContent = 'Create';
     cancelBtn.style.display = 'none';
     form.reset();
@@ -85,10 +84,8 @@ form.addEventListener('submit', async (event) => {
     event.preventDefault();
 
     const name = document.getElementById('name').value;
-    const price = document.getElementById('price').value;
-    const estoque = document.getElementById('estoque').value;
-    const phone = document.getElementById('phone').value;
-    console.log({ name, price, estoque, phone });
+    const age = document.getElementById('age').value;
+    const email = document.getElementById('email').value;
 
     hideError();
 
@@ -96,10 +93,9 @@ form.addEventListener('submit', async (event) => {
         if (editingId !== null) {
             // MODO EDIÇÃO — descobre o que mudou
             const changed = {};
-            if (name !== originalProduct.name) changed.name = name;
-            if (Number(price) !== originalProduct.price) changed.price = price;
-            if (estoque !== originalProduct.estoque) changed.estoque = estoque;
-            if (phone !== originalProduct.phone) changed.phone = phone;
+            if (name !== originalUser.name) changed.name = name;
+            if (Number(age) !== originalUser.age) changed.age = age;
+            if (email !== originalUser.email) changed.email = email;
 
             if (Object.keys(changed).length === 0) {
                 exitEditMode();
@@ -108,13 +104,13 @@ form.addEventListener('submit', async (event) => {
 
             const allChanged = Object.keys(changed).length === 3;
             if (allChanged) {
-                await updateUser(apiUrl, editingId, { name, price, estoque, phone });
+                await updateUser(apiUrl, editingId, { name, age, email });
             } else {
                 await patchUser(apiUrl, editingId, changed);
             }
         } else {
             // MODO CRIAÇÃO
-            await createUser(apiUrl, { name, price, estoque, phone });
+            await createUser(apiUrl, { name, age, email });
         }
 
         exitEditMode();

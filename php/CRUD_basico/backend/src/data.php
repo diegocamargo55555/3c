@@ -2,6 +2,8 @@
 
 require_once __DIR__ . '/../config/config.php';
 
+
+
 function loadData(): array
 {
     return json_decode(file_get_contents(DATA_FILE), true);

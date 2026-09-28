@@ -1,5 +1,5 @@
 {
-    "nextId": 4,
+    "nextId": 9,
     "products": [
         {
             "name": "Diego",
@@ -16,11 +16,25 @@
             "id": 2
         },
         {
-            "name": "Die4go",
-            "price": 56,
-            "estoque": 55,
-            "phone": "14092323",
-            "id": 3
+            "name": "awd",
+            "price": 23,
+            "estoque": "4",
+            "phone": "56",
+            "id": 6
+        },
+        {
+            "name": "312",
+            "price": 421,
+            "estoque": "2",
+            "phone": "31",
+            "id": 7
+        },
+        {
+            "name": "agr",
+            "price": 55,
+            "estoque": "5",
+            "phone": "1423",
+            "id": 8
         }
     ]
 }

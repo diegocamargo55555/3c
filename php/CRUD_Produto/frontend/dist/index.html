@@ -14,7 +14,7 @@
 
     <!-- 3. Nosso CSS por último (sobrescreve) -->
     <link rel="stylesheet" href="styles/style.css">
-  <script type="module" crossorigin src="/assets/index-BIq64YfL.js"></script>
+  <script type="module" crossorigin src="/assets/index-BK5Ls_nI.js"></script>
 </head>
 
 <body>
@@ -26,30 +26,35 @@
 
         <main class="container">
             <section class="card p-4 mb-4">
-                <h2 class="mb-3">Users</h2>
-                <div class="row g-3" id="users"></div>
+                <h2 class="mb-3">Products</h2>
+                <div class="row g-3" id="products"></div>
             </section>
 
             <section class="card p-4">
-                <h2 class="mb-3" id="form-title">Create User</h2>
+                <h2 class="mb-3" id="form-title">Create Product</h2>
 
                 <!-- Alerta de erro (escondido por padrão) -->
                 <div id="form-error" class="alert alert-danger d-none" role="alert"></div>
 
-                <form id="create-user-form" class="row g-3 align-items-end">
+                <form id="create-product-form" class="row g-3 align-items-end">
                     <div class="col-md-4">
                         <label for="name" class="form-label">Name</label>
                         <input type="text" class="form-control" id="name" name="name" required>
                     </div>
 
                     <div class="col-md-3">
-                        <label for="age" class="form-label">Age</label>
-                        <input type="number" class="form-control" id="age" name="age" required>
+                        <label for="price" class="form-label">Price</label>
+                        <input type="number" class="form-control" id="price" name="price" required>
+                    </div>
+
+                    <div class="col-md-1">
+                        <label for="estoque" class="form-label">Estoque</label>
+                        <input type="number" class="form-control" id="estoque" name="estoque" required>
                     </div>
 
                     <div class="col-md-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" required>
+                        <label for="phone" class="form-label">Phone</label>
+                        <input type="text" class="form-control" id="phone" name="phone" required>
                     </div>
 
                     <div class="col-md-2 d-flex gap-2">

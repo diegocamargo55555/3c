@@ -9,7 +9,7 @@ export function findUserById(id) {
 export async function renderUsers(apiUrl) {
     const users = await getUsers(apiUrl);
     usersCache = users;
-    const usersSection = document.getElementById('products');
+    const usersSection = document.getElementById('users');
 
     if (users.length === 0) {
         usersSection.innerHTML = '<p class="text-muted">No users found.</p>';

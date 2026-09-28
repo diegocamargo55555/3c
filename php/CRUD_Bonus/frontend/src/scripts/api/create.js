@@ -1,12 +1,11 @@
 import axios from 'axios';
 
-export async function createUser(apiUrl, { name, price, estoque, phone }) {
+export async function createUser(apiUrl, { name, age, email }) {
     try {
         const response = await axios.post(apiUrl, {
             name,
-            price: Number(price),
-            estoque,
-            phone,
+            age: Number(age),
+            email,
         });
         return response.data;
     } catch (error) {
