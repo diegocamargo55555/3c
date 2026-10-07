@@ -1,0 +1,1901 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Interativo: Sistema CRUD Fullstack (PHP & JS)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --primary-light: rgba(79, 70, 229, 0.12);
+            --success: #10b981;
+            --success-bg: rgba(16, 185, 129, 0.12);
+            --success-border: #059669;
+            --danger: #ef4444;
+            --danger-bg: rgba(239, 68, 68, 0.12);
+            --danger-border: #dc2626;
+            --warning: #f59e0b;
+            --warning-bg: rgba(245, 158, 11, 0.12);
+            --info: #06b6d4;
+
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --surface-hover: #334155;
+            --surface-alt: #0b1120;
+            --border: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --code-bg: #090d16;
+            --code-text: #e2e8f0;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --transition: all 0.25s ease;
+        }
+
+        [data-theme="light"] {
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --surface-hover: #f1f5f9;
+            --surface-alt: #f1f5f9;
+            --border: #e2e8f0;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --code-bg: #1e293b;
+            --code-text: #f8fafc;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Top Header */
+        header {
+            background-color: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 1.25rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .header-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .brand-box {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+        }
+
+        .brand-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, var(--primary), #818cf8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
+        }
+
+        .brand-text h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .brand-text p {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .btn-icon {
+            background: var(--surface-hover);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 0.6rem 0.9rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .btn-icon:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* Layout */
+        main {
+            max-width: 1100px;
+            width: 100%;
+            margin: 2rem auto;
+            padding: 0 1.5rem 4rem;
+            flex: 1;
+        }
+
+        /* Hero / Overview Dashboard */
+        .dashboard-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.75rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #4f46e5, #06b6d4, #10b981);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1.25rem;
+            margin-top: 1.5rem;
+        }
+
+        .stat-item {
+            background: var(--surface-alt);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1rem 1.25rem;
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+        }
+
+        .stat-item:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .stat-value {
+            font-size: 1.6rem;
+            font-weight: 800;
+            margin-top: 0.35rem;
+            letter-spacing: -0.03em;
+        }
+
+        .stat-value.primary { color: #818cf8; }
+        .stat-value.success { color: var(--success); }
+        .stat-value.danger { color: var(--danger); }
+        .stat-value.info { color: var(--info); }
+
+        /* Progress Bar */
+        .progress-section {
+            margin-top: 1.5rem;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-track {
+            height: 10px;
+            background: var(--surface-alt);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), #06b6d4);
+            border-radius: 999px;
+            width: 0%;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Filter Pills & Controls */
+        .controls-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .category-filter {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .filter-btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 0.5rem 1rem;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .filter-btn:hover {
+            border-color: var(--primary);
+            color: var(--text-main);
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #ffffff;
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+        }
+
+        .mode-toggles {
+            display: flex;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 0.25rem;
+            gap: 0.25rem;
+        }
+
+        .mode-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.4rem 0.85rem;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .mode-btn.active {
+            background: var(--surface-hover);
+            color: var(--text-main);
+        }
+
+        /* Question Card */
+        .question-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            margin-bottom: 1.75rem;
+            box-shadow: var(--shadow);
+            transition: border-color 0.25s ease, transform 0.25s ease;
+            position: relative;
+        }
+
+        .question-card:hover {
+            border-color: rgba(79, 70, 229, 0.5);
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .q-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+        }
+
+        .q-number {
+            background: var(--primary-light);
+            color: #818cf8;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 0.3rem 0.75rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid rgba(79, 70, 229, 0.3);
+        }
+
+        .q-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            padding: 0.3rem 0.75rem;
+            border-radius: 999px;
+            background: var(--surface-alt);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+        }
+
+        .q-badge.backend { color: #38bdf8; border-color: rgba(56, 189, 248, 0.3); background: rgba(56, 189, 248, 0.1); }
+        .q-badge.frontend { color: #fbbf24; border-color: rgba(251, 191, 36, 0.3); background: rgba(251, 191, 36, 0.1); }
+        .q-badge.security { color: #f87171; border-color: rgba(248, 113, 113, 0.3); background: rgba(248, 113, 113, 0.1); }
+        .q-badge.docker { color: #34d399; border-color: rgba(52, 211, 153, 0.3); background: rgba(52, 211, 153, 0.1); }
+        .q-badge.rest { color: #c084fc; border-color: rgba(192, 132, 252, 0.3); background: rgba(192, 132, 252, 0.1); }
+        .q-badge.architecture { color: #a3e635; border-color: rgba(163, 230, 53, 0.3); background: rgba(163, 230, 53, 0.1); }
+
+        .question-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .code-container {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1rem 1.25rem;
+            margin: 1rem 0 1.5rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.88rem;
+            color: var(--code-text);
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-container pre {
+            margin: 0;
+            white-space: pre;
+        }
+
+        .code-lang-tag {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+            font-weight: 600;
+        }
+
+        /* Options */
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .option-item {
+            background: var(--surface-alt);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 0.9rem 1.25rem;
+            cursor: pointer;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            transition: var(--transition);
+            position: relative;
+            user-select: none;
+        }
+
+        .option-item:hover:not(.locked) {
+            background: var(--surface-hover);
+            border-color: var(--primary);
+            transform: translateX(4px);
+        }
+
+        .opt-letter {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+            color: var(--text-muted);
+            transition: var(--transition);
+        }
+
+        .option-item:hover:not(.locked) .opt-letter {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .opt-text {
+            font-size: 0.95rem;
+            line-height: 1.45;
+            color: var(--text-main);
+            flex: 1;
+        }
+
+        /* Feedback States */
+        .option-item.correct {
+            background: var(--success-bg) !important;
+            border-color: var(--success) !important;
+            color: var(--text-main);
+        }
+
+        .option-item.correct .opt-letter {
+            background: var(--success);
+            border-color: var(--success);
+            color: #ffffff;
+        }
+
+        .option-item.incorrect {
+            background: var(--danger-bg) !important;
+            border-color: var(--danger) !important;
+            color: var(--text-main);
+        }
+
+        .option-item.incorrect .opt-letter {
+            background: var(--danger);
+            border-color: var(--danger);
+            color: #ffffff;
+        }
+
+        .option-item.locked {
+            cursor: default;
+        }
+
+        /* Technical Explanation Card */
+        .explanation-card {
+            margin-top: 1.25rem;
+            padding: 1.25rem;
+            border-radius: var(--radius-md);
+            background: rgba(30, 41, 59, 0.7);
+            border-left: 4px solid var(--info);
+            animation: fadeIn 0.3s ease-in-out;
+            display: none;
+        }
+
+        [data-theme="light"] .explanation-card {
+            background: #f1f5f9;
+        }
+
+        .explanation-card.show {
+            display: block;
+        }
+
+        .exp-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--info);
+            margin-bottom: 0.5rem;
+        }
+
+        .exp-content {
+            font-size: 0.9rem;
+            color: var(--text-main);
+            line-height: 1.5;
+        }
+
+        .exp-file-ref {
+            display: inline-block;
+            margin-top: 0.65rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.8rem;
+            background: var(--code-bg);
+            padding: 0.3rem 0.65rem;
+            border-radius: 4px;
+            color: #38bdf8;
+            border: 1px solid var(--border);
+        }
+
+        /* Single Question Navigation */
+        .pagination-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2rem;
+            gap: 1rem;
+        }
+
+        .btn-nav {
+            background: var(--primary);
+            color: #ffffff;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .btn-nav:hover:not(:disabled) {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-nav:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: var(--surface-hover);
+            border-color: var(--text-muted);
+        }
+
+        /* Final Results Modal / View */
+        .results-container {
+            display: none;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem;
+            box-shadow: var(--shadow);
+            text-align: center;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .results-score-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--surface-alt) 60%, transparent 61%),
+                        conic-gradient(var(--primary) calc(var(--score-pct, 0) * 1%), var(--border) 0);
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.3);
+        }
+
+        .results-score-text {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .results-title {
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .results-feedback {
+            font-size: 1rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        .category-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            text-align: left;
+            margin-bottom: 2.5rem;
+        }
+
+        .cat-card {
+            background: var(--surface-alt);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+        }
+
+        .cat-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .cat-bar-track {
+            height: 8px;
+            background: var(--surface);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .cat-bar-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 999px;
+        }
+
+        .results-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        /* Toast / Notification */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1rem 1.5rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            z-index: 999;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header { padding: 1rem; }
+            .brand-text h1 { font-size: 1.05rem; }
+            .question-card { padding: 1.25rem; }
+            .question-title { font-size: 1.05rem; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .controls-toolbar { flex-direction: column; align-items: stretch; }
+            .category-filter { overflow-x: auto; padding-bottom: 0.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <div class="brand-box">
+                <div class="brand-icon">⚡</div>
+                <div class="brand-text">
+                    <h1>CRUD Fullstack Quiz</h1>
+                    <p>Avaliação técnica: PHP 8.3 &bull; SQLite &bull; JS ES Modules &bull; Docker</p>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <button class="btn-icon" id="theme-toggle" title="Alternar Modo Escuro / Claro">
+                    <span id="theme-icon">🌙</span> <span id="theme-text">Tema</span>
+                </button>
+                <button class="btn-icon" id="reset-btn" title="Reiniciar Quiz">
+                    🔄 Reiniciar
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main>
+        <!-- Dashboard & Stats -->
+        <section class="dashboard-card" id="dashboard">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h2 style="font-size: 1.35rem; font-weight: 800; letter-spacing: -0.02em;">Painel de Desempenho</h2>
+                    <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 0.2rem;">
+                        Teste seus conhecimentos práticos e teóricos sobre a arquitetura e implementação desta aplicação.
+                    </p>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; font-weight: 600; color: var(--text-muted); background: var(--surface-alt); padding: 0.4rem 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                    ⏱️ Tempo: <span id="timer-display" style="color: var(--text-main); font-family: 'Fira Code', monospace;">00:00</span>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-label">Progresso</span>
+                    <span class="stat-value primary" id="stat-answered">0/25</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Acertos</span>
+                    <span class="stat-value success" id="stat-correct">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Erros</span>
+                    <span class="stat-value danger" id="stat-incorrect">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Taxa de Acerto</span>
+                    <span class="stat-value info" id="stat-accuracy">0%</span>
+                </div>
+            </div>
+
+            <div class="progress-section">
+                <div class="progress-header">
+                    <span>Conclusão geral do questionário</span>
+                    <span id="progress-text">0% concluído</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="progress-bar"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Controls & Filters Toolbar -->
+        <div class="controls-toolbar">
+            <div class="category-filter" id="category-filters">
+                <button class="filter-btn active" data-category="all">Todas (25)</button>
+                <button class="filter-btn" data-category="architecture">Arquitetura (4)</button>
+                <button class="filter-btn" data-category="backend">PHP & PDO (5)</button>
+                <button class="filter-btn" data-category="rest">REST & HTTP (5)</button>
+                <button class="filter-btn" data-category="frontend">Frontend JS (4)</button>
+                <button class="filter-btn" data-category="security">Segurança (4)</button>
+                <button class="filter-btn" data-category="docker">DevOps & Docker (3)</button>
+            </div>
+
+            <div class="mode-toggles">
+                <button class="mode-btn active" id="view-mode-step">Uma por vez</button>
+                <button class="mode-btn" id="view-mode-all">Ver todas</button>
+            </div>
+        </div>
+
+        <!-- Questions Container -->
+        <div id="questions-wrapper">
+            <!-- As perguntas serão geradas dinamicamente aqui -->
+        </div>
+
+        <!-- Step Navigation Bar (quando no modo "Uma por vez") -->
+        <div class="pagination-bar" id="pagination-bar">
+            <button class="btn-nav btn-secondary" id="btn-prev" disabled>
+                &larr; Pergunta Anterior
+            </button>
+            <span style="font-size: 0.9rem; font-weight: 600; color: var(--text-muted);" id="step-indicator">
+                Pergunta 1 de 25
+            </span>
+            <button class="btn-nav" id="btn-next">
+                Próxima Pergunta &rarr;
+            </button>
+        </div>
+
+        <!-- Results Screen (hidden by default) -->
+        <div class="results-container" id="results-view">
+            <div class="results-score-circle" id="results-circle">
+                <span class="results-score-text" id="final-pct">0%</span>
+            </div>
+            <h2 class="results-title" id="results-badge-title">Excelente!</h2>
+            <p class="results-feedback" id="results-feedback-text">
+                Você finalizou o questionário completo sobre a aplicação CRUD PHP/JS.
+            </p>
+
+            <h3 style="font-size: 1.1rem; margin-bottom: 1.25rem; font-weight: 700;">Desempenho por Categoria:</h3>
+            <div class="category-breakdown" id="category-breakdown">
+                <!-- Preenchido via JS -->
+            </div>
+
+            <div class="results-actions">
+                <button class="btn-nav" id="btn-restart">
+                    🔄 Fazer Novamente
+                </button>
+                <button class="btn-nav btn-secondary" id="btn-review-errors">
+                    ⚠️ Revisar Questões Erradas
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <span id="toast-icon">ℹ️</span>
+        <span id="toast-message">Mensagem</span>
+    </div>
+
+    <!-- Script com banco de questões e motor do Quiz -->
+    <script>
+        const QUESTIONS = [
+            // --- 1. ARQUITETURA E ORGANIZAÇÃO ---
+            {
+                id: 1,
+                category: "architecture",
+                categoryLabel: "Arquitetura",
+                title: "Como o arquivo `backend/public/index.php` gerencia o roteamento de requisições sem o uso de frameworks?",
+                code: `// backend/public/index.php
+$uri = strtok($_SERVER['REQUEST_URI'], '?');
+
+match ($uri) {
+    '/api/users' => require __DIR__ . '/../src/api.php',
+    default => notFound(),
+};`,
+                options: [
+                    "Utiliza uma biblioteca externa de FastRoute injetada pelo Composer via autoload.",
+                    "Usa a função `strtok()` para descartar a query string (ex: ?id=1) e avalia o path através da expressão `match`, direcionando `/api/users` para `src/api.php`.",
+                    "Lê todas as rotas diretamente do arquivo `data.json` e faz o parse via regex na URL inteira.",
+                    "Redireciona todas as requisições com código HTTP 301 para o Apache mod_rewrite."
+                ],
+                correct: 1,
+                explanation: "O arquivo `public/index.php` atua como Front Controller e roteador minimalista. `strtok($_SERVER['REQUEST_URI'], '?')` extrai apenas a rota sem os parâmetros GET, e a expressão `match` (recurso do PHP 8.0+) despacha a rota canônica `/api/users` diretamente para `src/api.php` ou dispara `notFound()` (404).",
+                fileRef: "backend/public/index.php (linhas 16-21)"
+            },
+            {
+                id: 2,
+                category: "architecture",
+                categoryLabel: "Arquitetura",
+                title: "No diretório `backend/data/`, existe o arquivo `data.json`. Qual é a relação atual desse arquivo com a aplicação?",
+                code: `// backend/src/data.php
+function db(): PDO {
+    static $pdo = null;
+    if ($pdo === null){
+        $pdo = new PDO('sqlite:' . DB_FILE);
+        ...
+    }
+    return $pdo;
+}`,
+                options: [
+                    "É usado como cache secundário caso a conexão com o SQLite falhe.",
+                    "É um resquício/legado de uma versão anterior que persistia dados em arquivo JSON antes da migração para SQLite via PDO.",
+                    "É o arquivo de configuração onde ficam registradas as migrações e tabelas do banco.",
+                    "Armazena logs diários de auditoria das requisições disparadas pelo frontend."
+                ],
+                correct: 1,
+                explanation: "Ao inspecionar `backend/src/data.php`, todas as funções (`loadData`, `insertUser`, `updateUser`, `deleteUser`) realizam operações SQL diretamente na base `data.sqlite` através de instâncias PDO. O arquivo `data.json` não é importado nem referenciado em nenhum trecho do código do backend atual.",
+                fileRef: "backend/src/data.php & backend/data/data.json"
+            },
+            {
+                id: 3,
+                category: "architecture",
+                categoryLabel: "Arquitetura",
+                title: "Qual é o papel do arquivo `backend/config/config.php` na arquitetura da aplicação?",
+                code: `// backend/config/config.php
+const DB_FILE = __DIR__ . '/../data/data.sqlite';
+
+$allowedOrigins = [
+    'http://0.0.0.0:8080', 'http://localhost:8080', 'http://127.0.0.1:8080',
+    'http://0.0.0.0:5500', 'http://localhost:5500', 'http://127.0.0.1:5500',
+];`,
+                options: [
+                    "Armazena as credenciais de root e senha do banco de dados MySQL.",
+                    "Centraliza definições de ambiente essenciais, como o caminho absoluto da base SQLite (DB_FILE) e a whitelist de origens autorizadas para CORS ($allowedOrigins).",
+                    "Define as rotas de API e os middlewares de autenticação JWT.",
+                    "Compila os arquivos SCSS do frontend e gera os assets finais."
+                ],
+                correct: 1,
+                explanation: "Centralizar o caminho do banco (`DB_FILE`) e a lista de origens CORS (`$allowedOrigins`) em um arquivo dedicado (`config.php`) isola a configuração das regras de negócio, facilitando a portabilidade e manutenção do sistema sem espalhar strings hardcoded.",
+                fileRef: "backend/config/config.php (linhas 3-8)"
+            },
+            {
+                id: 4,
+                category: "architecture",
+                categoryLabel: "Arquitetura",
+                title: "Qual arquivo do backend é estritamente responsável por ler o corpo da requisição (`php://input`), invocar os serviços e definir o código de status HTTP de resposta?",
+                options: [
+                    "`backend/src/validation.php`",
+                    "`backend/src/controllers.php`",
+                    "`backend/src/data.php`",
+                    "`backend/public/index.php`"
+                ],
+                correct: 1,
+                explanation: "`backend/src/controllers.php` abriga funções como `handleGet()`, `handlePost()`, `handlePut()`, `handlePatch()` e `handleDelete()`. Elas extraem o input com `json_decode(file_get_contents('php://input'), true)`, passam os dados para as funções de `services.php` e formatam a resposta com a função auxiliar `respond()`.",
+                fileRef: "backend/src/controllers.php (linhas 5-70)"
+            },
+
+            // --- 2. BACKEND PHP & BANCO DE DADOS (PDO / SQLITE) ---
+            {
+                id: 5,
+                category: "backend",
+                categoryLabel: "PHP & PDO",
+                title: "Na função `db()` em `backend/src/data.php`, qual padrão de projeto é implementado pelo uso da variável estática `static $pdo = null;`?",
+                code: `function db(): PDO {
+    static $pdo = null;
+    
+    if ($pdo === null){
+        $pdo = new PDO('sqlite:' . DB_FILE);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+    }
+    ...
+    return $pdo;
+}`,
+                options: [
+                    "Factory Method para gerar diferentes conexões assíncronas.",
+                    "Singleton (ou conexão estática cacheada), garantindo que apenas uma conexão PDO seja instanciada durante o ciclo de vida da requisição.",
+                    "Observer Pattern para escutar mudanças nas tabelas do SQLite.",
+                    "Active Record com mapeamento objeto-relacional automático."
+                ],
+                correct: 1,
+                explanation: "O uso de uma variável estática local com inicialização tardia (`lazy initialization`) garante o padrão Singleton no escopo da requisição. Se `db()` for chamada 5 vezes na mesma execução, a conexão com o arquivo SQLite só é aberta na primeira vez, reutilizando a mesma referência `$pdo`.",
+                fileRef: "backend/src/data.php (linhas 6-22)"
+            },
+            {
+                id: 6,
+                category: "backend",
+                categoryLabel: "PHP & PDO",
+                title: "Por que a função `normalizeUser()` em `backend/src/data.php` realiza conversão explícita com `(int)` nos campos `id` e `age`?",
+                code: `function normalizeUser(array $user): array
+{
+    $user['id'] = (int) $user['id'];
+    $user['age'] = (int) $user['age'];
+
+    return $user;
+}`,
+                options: [
+                    "Porque o SQLite rejeita consultas SELECT se os campos não forem inteiros puros no array.",
+                    "Porque o PDO com SQLite pode recuperar valores de colunas inteiras como strings no PHP; a conversão explícita garante consistência de tipos para o JSON retornado à API.",
+                    "Para evitar estouro de buffer (Buffer Overflow) no interpretador do PHP 8.3.",
+                    "Porque a biblioteca Axios no frontend rejeita respostas HTTP que contenham strings."
+                ],
+                correct: 1,
+                explanation: "Por padrão, dependendo das flags do PDO e do driver SQLite, valores numéricos recuperados via `fetchAll()` ou `fetch()` chegam como tipo `string` ('25', '1'). Ao codificar em JSON (`json_encode`), eles virariam strings `{\"id\": \"1\"}`. A normalização garante que os tipos numéricos primitivos do JSON sejam preservados (`{\"id\": 1}`).",
+                fileRef: "backend/src/data.php (linhas 24-30)"
+            },
+            {
+                id: 7,
+                category: "backend",
+                categoryLabel: "PHP & PDO",
+                title: "Na função `updateUser()` em `backend/src/data.php`, os nomes das colunas são montados dinamicamente via string. Por que essa instrução NÃO é vulnerável a SQL Injection?",
+                code: `// backend/src/data.php
+foreach ($fields as $column => $value) {
+    $columns[] = "$column = ?";
+    $values[] = $value;
+}
+$stmt = db()->prepare('UPDATE users SET ' . implode(', ', $columns) . ' WHERE id = ?');
+$stmt->execute($values);`,
+                options: [
+                    "Porque o PDO detecta e sanitiza nomes de colunas automaticamente em queries concatenadas.",
+                    "Porque a camada de serviço anterior filtra as chaves com uma whitelist estrita (`array_intersect_key`), e todos os valores reais são associados via Prepared Statements com placeholders `?`.",
+                    "Porque o SQLite não suporta caracteres maliciosos em instruções UPDATE.",
+                    "Porque a requisição PATCH é criptografada nativamente pelo PHP."
+                ],
+                correct: 1,
+                explanation: "Em `services.php` (linha 61), existe `$fields = array_intersect_key($input, array_flip(['name', 'age', 'email']));`. Somente essas três colunas pré-definidas chegam ao `updateUser()`. Nenhuma entrada arbitrária do usuário é usada como nome de coluna, e todos os valores vão via placeholders parametrizados `?`.",
+                fileRef: "backend/src/data.php (linhas 69-80) e backend/src/services.php (linha 61)"
+            },
+            {
+                id: 8,
+                category: "backend",
+                categoryLabel: "PHP & PDO",
+                title: "No arquivo `backend/src/services.php`, a função `createUser()` contém a instrução `sleep(2);`. Qual é o impacto disso ao rodar com o servidor embutido do PHP (`php -S`)?",
+                code: `function createUser(?array $input): array
+{
+    ...
+    $error = validateUserFields($input);
+    if ($error) return ['error' => $error, 'status' => 400];
+
+    sleep(2); // <-- Linha 27 em backend/src/services.php
+
+    $user = insertUser([...]);
+    return ['data' => $user, 'status' => 201];
+}`,
+                options: [
+                    "Nenhum, pois o PHP 8.3 possui um pool de threads nativo assíncrono para requisições HTTP.",
+                    "A requisição aguarda 2 segundos e, como o servidor embutido (`php -S`) é single-threaded (monotarefa), qualquer outra requisição de outros clientes fica bloqueada na fila durante esse tempo.",
+                    "O banco de dados SQLite fecha todas as conexões ativas por timeout.",
+                    "O container Docker é reiniciado pelo orquestrador por falha de liveness."
+                ],
+                correct: 1,
+                explanation: "O servidor embutido do PHP (`php -S`), configurado no `backend/Dockerfile`, é expressamente monotarefa (single-threaded). Comandos como `sleep(2)` bloqueiam o processo principal, impedindo o servidor de atender qualquer outra requisição até que os 2 segundos terminem.",
+                fileRef: "backend/src/services.php (linha 27)"
+            },
+            {
+                id: 9,
+                category: "backend",
+                categoryLabel: "PHP & PDO",
+                title: "Em `backend/src/validation.php`, quais são as regras de validação aplicadas para o campo `age` (idade)?",
+                code: `if (isset($input['age'])) {
+    if (!is_numeric($input['age'])) {
+        return 'Age must be a number';
+    }
+    $age = (int) $input['age'];
+    if ($age < 1 || $age > 150) {
+        return 'Age must be between 1 and 150';
+    }
+}`,
+                options: [
+                    "Deve ser estritamente maior que 18 anos e menor que 65 anos.",
+                    "Deve ser um valor numérico (`is_numeric`) e estar situado entre 1 e 150 (inclusive).",
+                    "Deve ser uma string formatada em hexadecimal.",
+                    "Pode ser qualquer número inteiro positivo sem limite máximo."
+                ],
+                correct: 1,
+                explanation: "A função `validateUserFields()` verifica se `!is_numeric($input['age'])` e, em seguida, se `($age < 1 || $age > 150)`, retornando a mensagem `'Age must be between 1 and 150'` caso não atenda aos critérios.",
+                fileRef: "backend/src/validation.php (linhas 34-44)"
+            },
+
+            // --- 3. API RESTFUL, PROTOCOLO HTTP & CORS ---
+            {
+                id: 10,
+                category: "rest",
+                categoryLabel: "REST & HTTP",
+                title: "Quais verbos HTTP são aceitos e roteados pela API para o endpoint `/api/users`?",
+                code: `// backend/src/api.php
+match ($method) {
+    'GET' => handleGet(),
+    'POST' => handlePost(),
+    'PUT' => handlePut(),
+    'PATCH' => handlePatch(),
+    'DELETE' => handleDelete(),
+    default => handleMethodNotAllowed(),
+};`,
+                options: [
+                    "Apenas GET e POST.",
+                    "GET, POST, PUT, PATCH e DELETE (com resposta 405 Method Not Allowed para os demais).",
+                    "GET, POST e HEAD apenas.",
+                    "Todos os verbos HTTP existentes, sem nenhum bloqueio de método."
+                ],
+                correct: 1,
+                explanation: "O arquivo `src/api.php` mapeia os métodos GET, POST, PUT, PATCH e DELETE para seus respectivos controladores. Caso outro verbo seja enviado (como TRACE ou CONNECT), dispara `handleMethodNotAllowed()`, que retorna status HTTP 405.",
+                fileRef: "backend/src/api.php (linhas 7-14)"
+            },
+            {
+                id: 11,
+                category: "rest",
+                categoryLabel: "REST & HTTP",
+                title: "Qual é a diferença fundamental no backend entre as operações de `PUT` e `PATCH` implementadas na função `editUser()`?",
+                code: `// backend/src/services.php
+function editUser(?int $id, ?array $input, bool $partial = false): array
+{
+    ...
+    if (!$partial) {
+        $error = validateRequiredFields($input, ['name', 'age', 'email']);
+        if ($error) return ['error' => $error, 'status' => 400];
+    }
+    ...
+}`,
+                options: [
+                    "O PUT apaga o registro antes de criar outro; o PATCH duplica o registro.",
+                    "No PUT (`$partial = false`), todos os campos ('name', 'age', 'email') são obrigatórios no payload; no PATCH (`$partial = true`), a validação de campos obrigatórios é ignorada, atualizando apenas os atributos fornecidos.",
+                    "O PATCH só permite alterar strings; o PUT só aceita números inteiros.",
+                    "O PUT responde com código 201 e o PATCH com código 204."
+                ],
+                correct: 1,
+                explanation: "De acordo com as boas práticas RESTful, PUT representa substituição completa (portanto, todos os campos são exigidos), enquanto PATCH representa atualização parcial. A função `editUser()` utiliza a flag `$partial` para exigir ou não a presença simultânea de todos os campos.",
+                fileRef: "backend/src/services.php (linhas 38-54)"
+            },
+            {
+                id: 12,
+                category: "rest",
+                categoryLabel: "REST & HTTP",
+                title: "Como a aplicação gerencia as requisições Preflight de CORS com o método `OPTIONS`?",
+                code: `// backend/public/index.php
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(204);
+    exit;
+}`,
+                options: [
+                    "Retorna status 200 com a lista de todos os usuários em formato JSON.",
+                    "Retorna status 204 (No Content) e encerra o script com `exit`, confirmando ao navegador que métodos como POST/PUT/DELETE com header JSON são permitidos.",
+                    "Bloqueia a requisição retornando erro 403 Forbidden para impedir requisições externas.",
+                    "Gera um cookie de sessão assinado para autorizar chamadas subsequentes."
+                ],
+                correct: 1,
+                explanation: "Navegadores emitem requisições HTTP OPTIONS (preflight) antes de disparar requisições cross-origin com payload JSON ou métodos como PUT/DELETE. O backend responde com os headers de autorização e o status 204 No Content, saindo imediatamente com `exit;`.",
+                fileRef: "backend/public/index.php (linhas 11-14)"
+            },
+            {
+                id: 13,
+                category: "rest",
+                categoryLabel: "REST & HTTP",
+                title: "Se um cliente disparar uma requisição GET para a URL inexistente `/api/produtos`, qual é a resposta retornada pela API?",
+                code: `match ($uri) {
+    '/api/users' => require __DIR__ . '/../src/api.php',
+    default => notFound(),
+};
+
+function notFound(): void {
+    http_response_code(404);
+    echo json_encode(['error' => 'Not found']);
+}`,
+                options: [
+                    "Status 200 OK com array vazio `[]`.",
+                    "Status 400 Bad Request.",
+                    "Status 404 Not Found com o corpo JSON `{\"error\": \"Not found\"}`.",
+                    "Status 500 Internal Server Error com o dump da pilha de exceção."
+                ],
+                correct: 2,
+                explanation: "A cláusula `default` do `match ($uri)` em `public/index.php` chama a função `notFound()`, que seta o código HTTP para 404 e cospe o JSON `{\"error\": \"Not found\"}`.",
+                fileRef: "backend/public/index.php (linhas 18-27)"
+            },
+            {
+                id: 14,
+                category: "rest",
+                categoryLabel: "REST & HTTP",
+                title: "Para operações de consulta, edição e exclusão de um usuário específico, qual padrão de URI a API utiliza?",
+                code: `// frontend/src/scripts/api/delete.js
+await axios.delete(\`\${apiUrl}?id=\${id}\`);
+
+// backend/src/controllers.php
+$id = isset($_GET['id']) ? (int) $_GET['id'] : null;`,
+                options: [
+                    "Parâmetros de rota canônicos REST: `/api/users/{id}` (ex: `/api/users/2`).",
+                    "Query string na URL: `/api/users?id={id}` (ex: `/api/users?id=2`), capturada diretamente de `$_GET['id']`.",
+                    "Headers personalizados: `X-User-ID: 2`.",
+                    "O ID precisa ser enviado gravado em um cookie de sessão encriptado."
+                ],
+                correct: 1,
+                explanation: "Devido ao roteador simplificado sem expressões regulares em `public/index.php`, a equipe optou por ler o identificador do usuário a partir da query string `?id=X` (acessível via `$_GET['id']`), mantendo o endpoint estático em `/api/users`.",
+                fileRef: "frontend/src/scripts/api/delete.js & backend/src/controllers.php"
+            },
+
+            // --- 4. FRONTEND JS, DOM & AXIOS ---
+            {
+                id: 15,
+                category: "frontend",
+                categoryLabel: "Frontend JS",
+                title: "No arquivo `frontend/src/app.js`, como os cliques nos botões 'Edit' e 'Delete' dos cards são manipulados?",
+                code: `// frontend/src/app.js
+usersSection.addEventListener('click', async (event) => {
+    const { target } = event;
+    if (target.dataset.action === 'edit') {
+        enterEditMode(getUserFromCard(target));
+    }
+    if (target.dataset.action === 'delete') {
+        ...
+    }
+});`,
+                options: [
+                    "Adicionando um ouvinte `.addEventListener()` individual em cada botão durante o loop de renderização.",
+                    "Por meio de Event Delegation (Delegação de Eventos), escutando cliques no elemento pai `#users` e inspecionando o atributo `data-action` do alvo.",
+                    "Usando atributos inline `onclick=\"...\"` nas tags HTML geradas.",
+                    "Utilizando observadores de mutação do DOM (MutationObserver) para simular cliques."
+                ],
+                correct: 1,
+                explanation: "A técnica de Event Delegation anexa um único event listener no elemento pai container (`#users`). Elementos filhos criados dinamicamente no futuro disparam eventos que sobem pela árvore (event bubbling), sendo capturados eficientemente sem vazamento de memória.",
+                fileRef: "frontend/src/app.js (linhas 60-80)"
+            },
+            {
+                id: 16,
+                category: "frontend",
+                categoryLabel: "Frontend JS",
+                title: "Em `frontend/src/scripts/dom/render.js`, qual é o papel do array `usersCache`?",
+                code: `// frontend/src/scripts/dom/render.js
+let usersCache = [];
+
+export function findUserById(id) {
+    return usersCache.find((user) => user.id === id);
+}
+
+export async function renderUsers(apiUrl) {
+    const users = await getUsers(apiUrl);
+    usersCache = users;
+    ...
+}`,
+                options: [
+                    "Persistir os usuários no `localStorage` para navegação offline.",
+                    "Manter os dados dos usuários em memória local para que a ação de 'Edit' preencha o formulário instantaneamente sem precisar disparar um novo GET para o backend.",
+                    "Enviar telemetria de uso para um servidor de monitoramento externo.",
+                    "Impedir que mais de 10 usuários sejam criados no sistema."
+                ],
+                correct: 1,
+                explanation: "`usersCache` armazena a lista recebida no último `renderUsers()`. Ao clicar no botão de edição, a função `findUserById()` busca os dados do usuário direto dessa memória, tornando a transição para o modo de edição instantânea.",
+                fileRef: "frontend/src/scripts/dom/render.js (linhas 3-11)"
+            },
+            {
+                id: 17,
+                category: "frontend",
+                categoryLabel: "Frontend JS",
+                title: "Ao submeter o formulário em modo de edição, qual lógica o `frontend/src/app.js` utiliza para escolher entre PUT ou PATCH?",
+                code: `// frontend/src/app.js
+const changed = {};
+if (name !== originalUser.name) changed.name = name;
+if (Number(age) !== originalUser.age) changed.age = age;
+if (email !== originalUser.email) changed.email = email;
+
+if (Object.keys(changed).length === 0) {
+    exitEditMode();
+    return;
+}
+
+const allChanged = Object.keys(changed).length === 3;
+if (allChanged) {
+    await updateUser(apiUrl, editingId, { name, age, email });
+} else {
+    await patchUser(apiUrl, editingId, changed);
+}`,
+                options: [
+                    "Sempre dispara PUT independente do que mudou no formulário.",
+                    "Calcula os campos alterados comparando com `originalUser`: se todos os 3 campos mudaram faz PUT (`updateUser`); se 1 ou 2 mudaram faz PATCH (`patchUser`); se nenhum mudou cancela a edição.",
+                    "Faz uma chamada OPTIONS prévia para o backend decidir o método.",
+                    "Dispara PATCH para campos de texto e PUT apenas para o campo de idade."
+                ],
+                correct: 1,
+                explanation: "O código monta um objeto `changed`. Se nada foi alterado, sai do modo de edição sem fazer tráfego de rede. Se todos os três atributos mudaram (`allChanged === true`), envia um PUT completo. Caso contrário, envia um PATCH contendo apenas as propriedades modificadas.",
+                fileRef: "frontend/src/app.js (linhas 93-111)"
+            },
+            {
+                id: 18,
+                category: "frontend",
+                categoryLabel: "Frontend JS",
+                title: "Por que as funções da camada API do frontend (`scripts/api/*.js`) capturam `error.response?.data?.error` e lançam um `new Error(message)`?",
+                code: `// frontend/src/scripts/api/create.js
+try {
+    const response = await axios.post(apiUrl, { ... });
+    return response.data;
+} catch (error) {
+    const message = error.response?.data?.error || 'Failed to create user';
+    throw new Error(message);
+}`,
+                options: [
+                    "Para forçar o recarregamento total da página HTML via `window.location.reload()`.",
+                    "Para extrair a mensagem de erro específica retornada pelo backend (ex: 'Age must be between 1 and 150') e propagá-la uniformemente para o alerta `#form-error` da UI.",
+                    "Porque o Axios trava a aplicação se o erro original não for destruído.",
+                    "Para converter o erro HTTP em um log do Apache."
+                ],
+                correct: 1,
+                explanation: "O backend devolve erros estruturados em `{\"error\": \"mensagem\"}`. Ao encapsular isso em um `new Error(message)`, os controladores do frontend em `app.js` podem simplesmente capturar com `catch (error)` e invocar `showError(error.message)` diretamente na interface.",
+                fileRef: "frontend/src/scripts/api/create.js (linhas 10-13)"
+            },
+
+            // --- 5. SEGURANÇA DA INFORMAÇÃO & VULNERABILIDADES ---
+            {
+                id: 19,
+                category: "security",
+                categoryLabel: "Segurança",
+                title: "No arquivo `frontend/src/scripts/dom/render.js`, qual vulnerabilidade de segurança crítica está presente na renderização dos cards?",
+                code: `// frontend/src/scripts/dom/render.js
+userDiv.innerHTML = \`
+    <div class="card user-card h-100" id="\${user.id}">
+        <div class="card-body">
+            <h5 class="card-title">\${user.name}</h5>
+            <p class="card-text mb-1"><strong>Age:</strong> \${user.age}</p>
+            <p class="card-text"><strong>Email:</strong> \${user.email}</p>
+        </div>
+        ...
+    </div>
+\`;`,
+                options: [
+                    "SQL Injection no navegador.",
+                    "Cross-Site Scripting (XSS), pois o valor de `user.name` é inserido diretamente via template string no `innerHTML` sem sanitização ou escape HTML.",
+                    "CSRF (Cross-Site Request Forgery) por falta de token no cookie.",
+                    "Remote Code Execution (RCE) no servidor Apache."
+                ],
+                correct: 1,
+                explanation: "Se um invasor cadastrar um usuário com o nome `<img src=x onerror=\"alert('XSS')\">`, o navegador executará o código JavaScript malicioso ao renderizar o card. A correção consiste em usar `element.textContent`, sanitizadores como DOMPurify ou criação explícita com `document.createElement()`.",
+                fileRef: "frontend/src/scripts/dom/render.js (linhas 25-37)"
+            },
+            {
+                id: 20,
+                category: "security",
+                categoryLabel: "Segurança",
+                title: "No arquivo `backend/Dockerfile`, existe a instrução `RUN chmod -R 777 data/`. Por que essa linha foi colocada e qual o risco de segurança?",
+                code: `FROM php:8.3-cli
+WORKDIR /app
+COPY src/ src/
+COPY data/ data/
+COPY public/ public/
+COPY config/ config/
+
+RUN chmod -R 777 data/  # <-- Linha 10`,
+                options: [
+                    "Foi colocada para acelerar a compilação do PHP; não representa nenhum risco.",
+                    "Foi incluída para contornar problemas de permissão na escrita do arquivo SQLite pelo PHP, mas concede privilégios totais (leitura, escrita e execução) para qualquer usuário do sistema, violando o princípio do menor privilégio.",
+                    "Serve para permitir que o Vite compile os assets do frontend diretamente dentro do backend.",
+                    "Habilita o protocolo SSL/TLS automático na porta 80."
+                ],
+                correct: 1,
+                explanation: "O SQLite necessita de permissão de escrita tanto no arquivo `.sqlite` quanto na pasta onde ele reside (para arquivos de lock/journal). Dar `777` resolve o erro de escrita de forma rápida, mas é inseguro. A solução correta é atribuir a propriedade do diretório ao usuário do serviço (ex: `chown -R www-data:www-data data/` e permissões `755`/`664`).",
+                fileRef: "backend/Dockerfile (linha 10)"
+            },
+            {
+                id: 21,
+                category: "security",
+                categoryLabel: "Segurança",
+                title: "Se um invasor enviar uma requisição POST direta para a API usando o terminal (`curl` ou Postman), a política de CORS em `backend/public/index.php` impedirá a criação do registro?",
+                code: `// backend/public/index.php
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+in_array($origin, $allowedOrigins) ? header("Access-Control-Allow-Origin: $origin") : null;`,
+                options: [
+                    "Sim, o CORS é um firewall do servidor que bloqueia pacotes TCP de origens não autorizadas.",
+                    "Não, o CORS é uma política de segurança executada exclusivamente pelos navegadores web; clientes como `curl` ou Postman conseguem disparar requisições diretamente sem sofrer bloqueio do CORS.",
+                    "Sim, desde que o IP do invasor esteja fora da rede local.",
+                    "Apenas se o backend estiver rodando em modo HTTPS."
+                ],
+                correct: 1,
+                explanation: "CORS (Cross-Origin Resource Sharing) é uma especificação implementada pelos navegadores para proteger usuários contra requisições maliciosas entre sites diferentes. Clientes fora do browser (como `curl`, Python, Postman) não respeitam e nem são bloqueados por cabeçalhos CORS.",
+                fileRef: "backend/public/index.php (linhas 5-10)"
+            },
+            {
+                id: 22,
+                category: "security",
+                categoryLabel: "Segurança",
+                title: "Analisando o DDL da tabela no arquivo `backend/src/data.php`, qual problema de integridade de dados existe em relação ao e-mail dos usuários?",
+                code: `$pdo->exec('CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    age INTEGER NOT NULL,
+    email TEXT NOT NULL
+)');`,
+                options: [
+                    "A coluna `email` foi criada com tipo `INTEGER` por engano.",
+                    "Não há a restrição `UNIQUE` na coluna `email`, permitindo que múltiplos usuários sejam cadastrados com exatamente o mesmo e-mail no banco de dados.",
+                    "O SQLite não permite colunas do tipo `TEXT` em tabelas com chave primária.",
+                    "A tabela é apagada e recriada toda vez que a função `db()` é chamada."
+                ],
+                correct: 1,
+                explanation: "A coluna `email` está definida apenas como `TEXT NOT NULL`, sem a restrição `UNIQUE`. Nem o banco nem o arquivo `services.php` checam duplicidade prévia, possibilitando cadastrar dezenas de usuários com o mesmo e-mail.",
+                fileRef: "backend/src/data.php (linhas 15-20)"
+            },
+
+            // --- 6. DEVOPS, DOCKER & DESEMPENHO ---
+            {
+                id: 23,
+                category: "docker",
+                categoryLabel: "DevOps & Docker",
+                title: "No arquivo `compose.yaml`, o serviço backend possui o mapeamento `./backend/data:/app/data`. O que acontece com os dados cadastrados se você rodar `docker compose down` e depois `docker compose up`?",
+                code: `services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:80"
+    volumes:
+      - ./backend/data:/app/data`,
+                options: [
+                    "Todos os dados são perdidos porque containers Docker são 100% efêmeros.",
+                    "Os dados são preservados porque a pasta `./backend/data` do host está montada diretamente no container via bind mount, mantendo o arquivo `data.sqlite` no disco da máquina física.",
+                    "Os dados são sincronizados automaticamente em uma nuvem pública da Docker Hub.",
+                    "O arquivo `data.sqlite` é convertido para `data.json`."
+                ],
+                correct: 1,
+                explanation: "O bind mount (`./backend/data:/app/data`) mapeia a pasta do host para dentro do container. Mesmo quando os containers são excluídos e reconstruídos via Docker Compose, o arquivo `data.sqlite` continua intacto no diretório da máquina física.",
+                fileRef: "compose.yaml (linhas 6-7)"
+            },
+            {
+                id: 24,
+                category: "docker",
+                categoryLabel: "DevOps & Docker",
+                title: "Qual é a principal vantagem da estratégia de Multi-stage build adotada no `frontend/Dockerfile`?",
+                code: `FROM node:22-alpine AS build
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+FROM httpd:alpine
+COPY --from=build /app/dist/ /usr/local/apache2/htdocs/`,
+                options: [
+                    "Permite que o frontend rode código PHP nativamente no navegador.",
+                    "Gera uma imagem de produção muito menor e mais segura, usando o Node.js apenas para compilar o código com Vite e entregando no final apenas o servidor Apache (`httpd:alpine`) com arquivos estáticos compilados.",
+                    "Permite compartilhar memória RAM com o container do banco SQLite.",
+                    "Garante hot-reload do Vite em produção sem precisar reiniciar o Apache."
+                ],
+                correct: 1,
+                explanation: "Com o Multi-stage build, ferramentas pesadas necessárias apenas na compilação (Node.js 22, npm, dependências de desenvolvimento) são descartadas. A imagem final contém apenas o servidor web enxuto Apache Alpine com os arquivos HTML/JS/CSS gerados.",
+                fileRef: "frontend/Dockerfile (linhas 1-16)"
+            },
+            {
+                id: 25,
+                category: "docker",
+                categoryLabel: "DevOps & Docker",
+                title: "Ao analisar a linha 5 do arquivo `frontend/Dockerfile`, qual inconsistência ou linha desnecessária pode ser observada no primeiro estágio?",
+                code: `1: FROM node:22-alpine AS build
+2: 
+3: WORKDIR /app
+4: 
+5: COPY dist/ /usr/local/apache2/htdocs/  # <-- Observe esta linha!
+6: 
+7: COPY package.json package-lock.json ./
+8: RUN npm ci`,
+                options: [
+                    "A linha `WORKDIR /app` é inválida em ambientes Alpine Linux.",
+                    "A instrução `COPY dist/ /usr/local/apache2/htdocs/` está no estágio do Node.js antes mesmo do build do Vite acontecer (`npm run build` ocorre depois), tornando essa cópia inútil e fora de lugar.",
+                    "O comando `npm ci` deveria ser substituído por `apt-get install`.",
+                    "Falta a instrução `EXPOSE 3306` para conectar o frontend ao MySQL."
+                ],
+                correct: 1,
+                explanation: "No primeiro estágio (que usa a imagem `node:22-alpine`), a pasta do Apache `/usr/local/apache2/htdocs/` sequer existe, e o diretório `dist/` do Vite nem foi compilado ainda. Essa linha é um erro/resquício de edição redundante, já que a cópia correta é feita na linha 15 (`COPY --from=build /app/dist/ ...`).",
+                fileRef: "frontend/Dockerfile (linha 5 vs linha 15)"
+            }
+        ];
+
+        // Estado do Quiz
+        let currentFilter = 'all';
+        let viewMode = 'step'; // 'step' ou 'all'
+        let currentQuestionIndex = 0;
+        let userAnswers = {}; // { questionId: selectedIndex }
+        let timerSeconds = 0;
+        let timerInterval = null;
+
+        // Elementos DOM
+        const questionsWrapper = document.getElementById('questions-wrapper');
+        const paginationBar = document.getElementById('pagination-bar');
+        const btnPrev = document.getElementById('btn-prev');
+        const btnNext = document.getElementById('btn-next');
+        const stepIndicator = document.getElementById('step-indicator');
+        const statAnswered = document.getElementById('stat-answered');
+        const statCorrect = document.getElementById('stat-correct');
+        const statIncorrect = document.getElementById('stat-incorrect');
+        const statAccuracy = document.getElementById('stat-accuracy');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const timerDisplay = document.getElementById('timer-display');
+        const resultsView = document.getElementById('results-view');
+
+        // Inicialização
+        function initQuiz() {
+            startTimer();
+            renderQuestions();
+            updateStats();
+            setupEventListeners();
+        }
+
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerSeconds = 0;
+            timerInterval = setInterval(() => {
+                timerSeconds++;
+                const mins = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
+                const secs = String(timerSeconds % 60).padStart(2, '0');
+                timerDisplay.textContent = `${mins}:${secs}`;
+            }, 1000);
+        }
+
+        // Filtro de Perguntas
+        function getFilteredQuestions() {
+            if (currentFilter === 'all') return QUESTIONS;
+            return QUESTIONS.filter(q => q.category === currentFilter);
+        }
+
+        // Renderização das perguntas
+        function renderQuestions() {
+            const filtered = getFilteredQuestions();
+            questionsWrapper.innerHTML = '';
+
+            if (filtered.length === 0) {
+                questionsWrapper.innerHTML = '<p style="text-align:center; padding: 2rem; color: var(--text-muted);">Nenhuma pergunta nesta categoria.</p>';
+                paginationBar.style.display = 'none';
+                return;
+            }
+
+            if (viewMode === 'step') {
+                paginationBar.style.display = 'flex';
+                if (currentQuestionIndex >= filtered.length) {
+                    currentQuestionIndex = filtered.length - 1;
+                }
+                const q = filtered[currentQuestionIndex];
+                const card = createQuestionCard(q, currentQuestionIndex + 1, filtered.length);
+                questionsWrapper.appendChild(card);
+                updatePaginationControls(filtered.length);
+            } else {
+                paginationBar.style.display = 'none';
+                filtered.forEach((q, index) => {
+                    const card = createQuestionCard(q, index + 1, filtered.length);
+                    questionsWrapper.appendChild(card);
+                });
+            }
+        }
+
+        function createQuestionCard(q, currentPos, total) {
+            const card = document.createElement('div');
+            card.classList.add('question-card');
+            card.id = `q-card-${q.id}`;
+
+            const answered = userAnswers[q.id] !== undefined;
+            const selectedOpt = userAnswers[q.id];
+
+            let codeHtml = '';
+            if (q.code) {
+                codeHtml = `
+                    <div class="code-container">
+                        <span class="code-lang-tag">Código</span>
+                        <pre><code>${escapeHtml(q.code)}</code></pre>
+                    </div>
+                `;
+            }
+
+            let optionsHtml = '';
+            const letters = ['A', 'B', 'C', 'D'];
+            q.options.forEach((opt, idx) => {
+                let statusClass = '';
+                if (answered) {
+                    if (idx === q.correct) {
+                        statusClass = 'correct locked';
+                    } else if (idx === selectedOpt) {
+                        statusClass = 'incorrect locked';
+                    } else {
+                        statusClass = 'locked';
+                    }
+                }
+
+                optionsHtml += `
+                    <div class="option-item ${statusClass}" data-qid="${q.id}" data-opt="${idx}">
+                        <div class="opt-letter">${letters[idx]}</div>
+                        <div class="opt-text">${escapeHtml(opt)}</div>
+                    </div>
+                `;
+            });
+
+            let explanationDisplay = answered ? 'block' : 'none';
+            let isUserCorrect = answered && selectedOpt === q.correct;
+            let expHeaderColor = isUserCorrect ? 'var(--success)' : 'var(--danger)';
+            let expHeaderText = isUserCorrect ? '✅ Resposta Correta!' : '❌ Resposta Incorreta!';
+
+            card.innerHTML = `
+                <div class="question-header">
+                    <div class="q-meta">
+                        <span class="q-number">Questão ${currentPos} / ${total}</span>
+                        <span class="q-badge ${q.category}">${q.categoryLabel}</span>
+                    </div>
+                    <span style="font-size: 0.8rem; color: var(--text-muted); font-family: 'Fira Code', monospace;">ID: #${q.id}</span>
+                </div>
+
+                <h3 class="question-title">${q.title}</h3>
+                ${codeHtml}
+
+                <div class="options-list">
+                    ${optionsHtml}
+                </div>
+
+                <div class="explanation-card ${answered ? 'show' : ''}" style="display: ${explanationDisplay};">
+                    <div class="exp-header" style="color: ${expHeaderColor};">
+                        <span>${expHeaderText}</span>
+                    </div>
+                    <div class="exp-content">${q.explanation}</div>
+                    ${q.fileRef ? `<div class="exp-file-ref">📁 Referência: ${q.fileRef}</div>` : ''}
+                </div>
+            `;
+
+            // Adiciona ouvintes às opções
+            const optItems = card.querySelectorAll('.option-item');
+            optItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const qid = Number(item.dataset.qid);
+                    const optIdx = Number(item.dataset.opt);
+                    handleAnswer(qid, optIdx);
+                });
+            });
+
+            return card;
+        }
+
+        function handleAnswer(questionId, selectedIdx) {
+            // Se já respondeu, não permite mudar no modo estudo
+            if (userAnswers[questionId] !== undefined) return;
+
+            userAnswers[questionId] = selectedIdx;
+            const q = QUESTIONS.find(item => item.id === questionId);
+            const isCorrect = selectedIdx === q.correct;
+
+            if (isCorrect) {
+                showToast("✨ Correto!", "success");
+            } else {
+                showToast("❌ Resposta incorreta.", "danger");
+            }
+
+            renderQuestions();
+            updateStats();
+
+            // Checa se completou todas as perguntas
+            if (Object.keys(userAnswers).length === QUESTIONS.length) {
+                setTimeout(showFinalResults, 1000);
+            }
+        }
+
+        function updateStats() {
+            const total = QUESTIONS.length;
+            const answeredCount = Object.keys(userAnswers).length;
+            let correctCount = 0;
+            let incorrectCount = 0;
+
+            Object.entries(userAnswers).forEach(([qid, sel]) => {
+                const q = QUESTIONS.find(item => item.id === Number(qid));
+                if (q && q.correct === sel) {
+                    correctCount++;
+                } else {
+                    incorrectCount++;
+                }
+            });
+
+            statAnswered.textContent = `${answeredCount}/${total}`;
+            statCorrect.textContent = correctCount;
+            statIncorrect.textContent = incorrectCount;
+
+            const accuracy = answeredCount > 0 ? Math.round((correctCount / answeredCount) * 100) : 0;
+            statAccuracy.textContent = `${accuracy}%`;
+
+            const progressPct = Math.round((answeredCount / total) * 100);
+            progressBar.style.width = `${progressPct}%`;
+            progressText.textContent = `${progressPct}% concluído (${answeredCount} de ${total})`;
+        }
+
+        function updatePaginationControls(totalInFilter) {
+            stepIndicator.textContent = `Pergunta ${currentQuestionIndex + 1} de ${totalInFilter}`;
+            btnPrev.disabled = currentQuestionIndex === 0;
+            btnNext.disabled = currentQuestionIndex >= totalInFilter - 1;
+
+            if (currentQuestionIndex === totalInFilter - 1 && Object.keys(userAnswers).length === totalInFilter) {
+                btnNext.textContent = "Ver Resultado Final 🏆";
+                btnNext.disabled = false;
+            } else {
+                btnNext.textContent = "Próxima Pergunta →";
+            }
+        }
+
+        function showFinalResults() {
+            clearInterval(timerInterval);
+            resultsView.style.display = 'block';
+            resultsView.scrollIntoView({ behavior: 'smooth' });
+
+            const total = QUESTIONS.length;
+            let correctCount = 0;
+            const categoryStats = {};
+
+            QUESTIONS.forEach(q => {
+                if (!categoryStats[q.category]) {
+                    categoryStats[q.category] = { label: q.categoryLabel, total: 0, correct: 0 };
+                }
+                categoryStats[q.category].total++;
+
+                if (userAnswers[q.id] === q.correct) {
+                    correctCount++;
+                    categoryStats[q.category].correct++;
+                }
+            });
+
+            const pct = Math.round((correctCount / total) * 100);
+            document.getElementById('final-pct').textContent = `${pct}%`;
+            document.getElementById('results-circle').style.setProperty('--score-pct', pct);
+
+            const badgeTitle = document.getElementById('results-badge-title');
+            const feedbackText = document.getElementById('results-feedback-text');
+
+            if (pct >= 90) {
+                badgeTitle.textContent = "🏆 Mestre da Arquitetura Fullstack!";
+                feedbackText.textContent = `Impressionante! Você acertou ${correctCount} de ${total} perguntas (${pct}%). Você domina desde o PHP 8.3 e SQLite até o Docker e a segurança da informação!`;
+            } else if (pct >= 70) {
+                badgeTitle.textContent = "🚀 Excelente Desempenho!";
+                feedbackText.textContent = `Muito bom! Você acertou ${correctCount} de ${total} perguntas (${pct}%). Seu entendimento sobre o fluxo REST, PDO e manipulação do DOM está bem sólido.`;
+            } else if (pct >= 50) {
+                badgeTitle.textContent = "📚 Bom Início! Vale Revisar.";
+                feedbackText.textContent = `Você acertou ${correctCount} de ${total} perguntas (${pct}%). Dê uma atenção especial aos tópicos de segurança e ciclo de vida do Docker.`;
+            } else {
+                badgeTitle.textContent = "💡 Precisa Praticar Mais";
+                feedbackText.textContent = `Você acertou ${correctCount} de ${total} perguntas (${pct}%). Recomendamos revisar o arquivo questoes_aplicacao.txt e inspecionar o código fonte de backend/ e frontend/.`;
+            }
+
+            // Breakdown por categoria
+            const breakdownContainer = document.getElementById('category-breakdown');
+            breakdownContainer.innerHTML = '';
+
+            Object.values(categoryStats).forEach(cat => {
+                const catPct = Math.round((cat.correct / cat.total) * 100);
+                const div = document.createElement('div');
+                div.classList.add('cat-card');
+                div.innerHTML = `
+                    <div class="cat-title">
+                        <span>${cat.label}</span>
+                        <span>${cat.correct}/${cat.total} (${catPct}%)</span>
+                    </div>
+                    <div class="cat-bar-track">
+                        <div class="cat-bar-fill" style="width: ${catPct}%;"></div>
+                    </div>
+                `;
+                breakdownContainer.appendChild(div);
+            });
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const msgEl = document.getElementById('toast-message');
+            const iconEl = document.getElementById('toast-icon');
+
+            msgEl.textContent = message;
+            iconEl.textContent = type === 'success' ? '✅' : (type === 'danger' ? '❌' : 'ℹ️');
+
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
+        }
+
+        function escapeHtml(str) {
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function setupEventListeners() {
+            // Navegação Step
+            btnPrev.addEventListener('click', () => {
+                if (currentQuestionIndex > 0) {
+                    currentQuestionIndex--;
+                    renderQuestions();
+                }
+            });
+
+            btnNext.addEventListener('click', () => {
+                const filtered = getFilteredQuestions();
+                if (currentQuestionIndex < filtered.length - 1) {
+                    currentQuestionIndex++;
+                    renderQuestions();
+                } else if (Object.keys(userAnswers).length === filtered.length) {
+                    showFinalResults();
+                }
+            });
+
+            // Filtros de Categoria
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentFilter = btn.dataset.category;
+                    currentQuestionIndex = 0;
+                    renderQuestions();
+                });
+            });
+
+            // Modos de visualização
+            const modeStepBtn = document.getElementById('view-mode-step');
+            const modeAllBtn = document.getElementById('view-mode-all');
+
+            modeStepBtn.addEventListener('click', () => {
+                viewMode = 'step';
+                modeStepBtn.classList.add('active');
+                modeAllBtn.classList.remove('active');
+                renderQuestions();
+            });
+
+            modeAllBtn.addEventListener('click', () => {
+                viewMode = 'all';
+                modeAllBtn.classList.add('active');
+                modeStepBtn.classList.remove('active');
+                renderQuestions();
+            });
+
+            // Tema Dark / Light
+            const themeToggle = document.getElementById('theme-toggle');
+            const themeIcon = document.getElementById('theme-icon');
+            const themeText = document.getElementById('theme-text');
+
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.body.getAttribute('data-theme');
+                if (currentTheme === 'light') {
+                    document.body.removeAttribute('data-theme');
+                    themeIcon.textContent = '🌙';
+                    themeText.textContent = 'Tema Escuro';
+                } else {
+                    document.body.setAttribute('data-theme', 'light');
+                    themeIcon.textContent = '☀️';
+                    themeText.textContent = 'Tema Claro';
+                }
+            });
+
+            // Botão Reset
+            document.getElementById('reset-btn').addEventListener('click', () => {
+                if (confirm('Tem certeza de que deseja reiniciar o questionário? Suas respostas serão zeradas.')) {
+                    userAnswers = {};
+                    currentQuestionIndex = 0;
+                    resultsView.style.display = 'none';
+                    startTimer();
+                    renderQuestions();
+                    updateStats();
+                    showToast("Quiz reiniciado!", "info");
+                }
+            });
+
+            // Botões do Resultado Final
+            document.getElementById('btn-restart').addEventListener('click', () => {
+                userAnswers = {};
+                currentQuestionIndex = 0;
+                resultsView.style.display = 'none';
+                startTimer();
+                renderQuestions();
+                updateStats();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            document.getElementById('btn-review-errors').addEventListener('click', () => {
+                resultsView.style.display = 'none';
+                viewMode = 'all';
+                modeAllBtn.classList.add('active');
+                modeStepBtn.classList.remove('active');
+                renderQuestions();
+
+                // Dá scroll até o primeiro erro
+                setTimeout(() => {
+                    const firstError = document.querySelector('.option-item.incorrect');
+                    if (firstError) {
+                        firstError.closest('.question-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }, 200);
+            });
+
+            // Atalhos de teclado (1-4 ou A-D para responder, setas para navegar)
+            window.addEventListener('keydown', (e) => {
+                if (viewMode !== 'step' || resultsView.style.display === 'block') return;
+
+                const filtered = getFilteredQuestions();
+                const q = filtered[currentQuestionIndex];
+                if (!q) return;
+
+                if (e.key === 'ArrowLeft') {
+                    if (currentQuestionIndex > 0) {
+                        currentQuestionIndex--;
+                        renderQuestions();
+                    }
+                } else if (e.key === 'ArrowRight') {
+                    if (currentQuestionIndex < filtered.length - 1) {
+                        currentQuestionIndex++;
+                        renderQuestions();
+                    }
+                } else if (['1', '2', '3', '4'].includes(e.key)) {
+                    const optIdx = parseInt(e.key) - 1;
+                    handleAnswer(q.id, optIdx);
+                } else if (['a', 'b', 'c', 'd', 'A', 'B', 'C', 'D'].includes(e.key)) {
+                    const map = { 'a': 0, 'b': 1, 'c': 2, 'd': 3, 'A': 0, 'B': 1, 'C': 2, 'D': 3 };
+                    handleAnswer(q.id, map[e.key]);
+                }
+            });
+        }
+
+        // Inicia na carga do DOM
+        document.addEventListener('DOMContentLoaded', initQuiz);
+    </script>
+</body>
+</html>

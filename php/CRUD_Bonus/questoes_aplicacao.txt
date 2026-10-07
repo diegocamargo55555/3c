@@ -1,0 +1,322 @@
+================================================================================
+          QUESTÕES SOBRE A APLICAÇÃO CRUD PHP/JS (FULLSTACK COM DOCKER)
+================================================================================
+
+Este questionário foi elaborado com base no código-fonte real desta aplicação,
+cobrindo Backend (PHP 8.3, SQLite, PDO), Frontend (JavaScript ES Modules, Vite,
+Bootstrap, Axios), Infraestrutura (Docker, Docker Compose) e Segurança.
+
+--------------------------------------------------------------------------------
+SUMÁRIO
+--------------------------------------------------------------------------------
+1. Arquitetura e Organização de Código
+2. Backend PHP, Regras de Negócio e Banco de Dados (SQLite/PDO)
+3. API RESTful, Protocolo HTTP e CORS
+4. Frontend JavaScript, Manipulação do DOM e Axios
+5. Segurança da Informação e Vulnerabilidades
+6. DevOps, Docker e Desempenho
+7. Questões de Múltipla Escolha (com Gabarito ao final)
+8. Desafios Práticos de Refatoração
+
+================================================================================
+1. ARQUITETURA E ORGANIZAÇÃO DE CÓDIGO
+================================================================================
+
+1.1. No backend, a aplicação não utiliza frameworks (como Laravel ou Symfony).
+     Como o código está organizado para separar responsabilidades entre:
+     a) Ponto de entrada e roteamento inicial (public/index.php)
+     b) Roteamento por método HTTP (src/api.php)
+     c) Extração de dados da requisição e envio de respostas (src/controllers.php)
+     d) Validações e regras de negócio (src/services.php e src/validation.php)
+     e) Acesso e persistência em banco de dados (src/data.php)
+
+1.2. Qual é o papel do arquivo "backend/config/config.php"? Por que definir a
+     constante DB_FILE e o array $allowedOrigins nele é uma boa prática
+     arquitetural?
+
+1.3. O frontend utiliza Vite com JavaScript Vanilla estruturado em módulos
+     (ES Modules). Explique a divisão adotada entre:
+     - src/app.js (controlador principal e escuta de eventos)
+     - src/scripts/dom/render.js (renderização e cache de usuários)
+     - src/scripts/api/*.js (comunicação HTTP com Axios)
+     Quais as vantagens dessa abordagem em comparação a colocar todo o código em
+     um único arquivo script.js?
+
+1.4. Existe um arquivo "backend/data/data.json" no projeto. Analisando o código
+     atual em "backend/src/data.php", esse arquivo JSON ainda está em uso pela
+     aplicação ou trata-se de um resquício/legado de uma versão anterior que usava
+     JSON antes da migração para SQLite? Justifique com base no código.
+
+================================================================================
+2. BACKEND PHP, REGRAS DE NEGÓCIO E BANCO DE DADOS (SQLite/PDO)
+================================================================================
+
+2.1. Na função `db()` presente em "backend/src/data.php", há o uso de:
+     `static $pdo = null;`
+     Qual é o padrão de projeto implementado por essa declaração estática e qual o
+     seu benefício para o ciclo de vida de uma requisição PHP?
+
+2.2. A tabela `users` é criada dentro da própria função `db()` por meio de:
+     `$pdo->exec('CREATE TABLE IF NOT EXISTS users (...)');`
+     - Qual é a vantagem dessa abordagem para um ambiente de desenvolvimento/teste?
+     - Em um ambiente corporativo ou de produção, por que utilizar migrations
+       (como Phinx, Doctrine Migrations ou scripts dedicados) seria mais adequado?
+
+2.3. Em "backend/src/data.php", a função `normalizeUser(array $user)` converte
+     explicitamente `id` e `age` para inteiros com `(int)`. Por que essa
+     conversão manual é necessária ao trabalhar com SQLite e PDO no PHP?
+
+2.4. Na função `updateUser()` em "backend/src/data.php", as colunas a serem
+     atualizadas são montadas dinamicamente via:
+     `$columns[] = "$column = ?";`
+     Por que essa construção dinâmica NÃO é vulnerável a SQL Injection neste caso
+     específico? Qual mecanismo de segurança em "backend/src/services.php"
+     garante isso antes da chamada da função?
+
+2.5. A função `validateUserFields()` em "backend/src/validation.php" aplica regras
+     específicas. Quais são as restrições impostas para:
+     a) Nome (`name`)
+     b) Idade (`age`)
+     c) E-mail (`email`)
+
+2.6. No arquivo "backend/src/services.php", dentro da função `createUser()`, existe
+     a seguinte linha de código:
+     `sleep(10);`
+     - O que esse comando faz na execução da requisição?
+     - Qual o impacto disso no servidor embutido do PHP (`php -S`) caso dois
+       usuários tentem cadastrar registros simultaneamente?
+
+================================================================================
+3. API RESTFUL, PROTOCOLO HTTP E CORS
+================================================================================
+
+3.1. A aplicação implementa operações com verbos HTTP distintos. Quais são os
+     verbos suportados em `/api/users` e qual ação cada um executa no CRUD?
+
+3.2. Explique detalhadamente como o backend e o frontend lidam com a diferença
+     entre `PUT` e `PATCH`:
+     - Qual a definição semântica na especificação HTTP entre PUT e PATCH?
+     - Como a função `editUser()` em `services.php` altera seu comportamento
+       através do parâmetro `$partial`?
+     - No `app.js`, qual é a lógica utilizada no evento de submit para decidir se
+       a requisição enviada será um PUT ou um PATCH?
+
+3.3. Para as operações de busca individual, edição e exclusão (PUT, PATCH, DELETE),
+     a aplicação utiliza a query string `?id=X` (ex.: `/api/users?id=2`) em vez
+     de parâmetros de rota como `/api/users/2`.
+     - Por que os desenvolvedores optaram por essa abordagem dado o roteador
+       simples implementado em `public/index.php`?
+     - Quais seriam as alterações necessárias no `index.php` para aceitar rotas no
+       formato REST canônico `/api/users/{id}`?
+
+3.4. Em "backend/public/index.php", observe o trecho:
+     ```php
+     if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+         http_response_code(204);
+         exit;
+     }
+     ```
+     - O que é uma requisição HTTP OPTIONS (Preflight Request)?
+     - Por que navegadores enviam essa requisição antes de POST, PUT, PATCH ou
+       DELETE que contenham `Content-Type: application/json`?
+     - O que o status HTTP 204 significa?
+
+3.5. Analise os códigos de status HTTP (HTTP Status Codes) retornados pela API:
+     - 200 OK
+     - 201 Created
+     - 204 No Content
+     - 400 Bad Request
+     - 404 Not Found
+     - 405 Method Not Allowed
+     - 500 Internal Server Error
+     Identifique em qual situação exata cada um desses códigos é emitido pelo
+     backend.
+
+================================================================================
+4. FRONTEND JAVASCRIPT, MANIPULAÇÃO DO DOM E AXIOS
+================================================================================
+
+4.1. Em "frontend/src/app.js", os cliques para editar e deletar usuários NÃO são
+     atrelados a cada botão individualmente durante a renderização. Em vez disso,
+     é feito:
+     `usersSection.addEventListener('click', async (event) => { ... });`
+     - Qual é o nome dessa técnica de programação no DOM?
+     - Quais são os benefícios dessa técnica para performance e manutenção de
+       elementos criados dinamicamente?
+
+4.2. Como funciona o mecanismo de cache local `usersCache` em
+     "frontend/src/scripts/dom/render.js"? Quando o usuário clica em "Edit", de
+     onde os dados atuais do usuário são resgatados para preencher o formulário?
+
+4.3. No `app.js`, observe a variável `originalUser` e o objeto `changed`:
+     - O que acontece se o usuário clicar em "Edit", modificar o campo "Age" para
+       o mesmo valor de antes e clicar em "Update"?
+     - O que acontece se nenhum campo for alterado e o botão "Update" for clicado?
+
+4.4. Analise as funções do diretório "frontend/src/scripts/api/".
+     Por que todas as requisições Axios estão envolvidas em blocos `try...catch`
+     que extraem `error.response?.data?.error` e lançam um `new Error(message)`?
+     Como isso facilita a exibição de erros na interface do usuário?
+
+================================================================================
+5. SEGURANÇA DA INFORMAÇÃO E VULNERABILIDADES
+================================================================================
+
+5.1. [VULNERABILIDADE XSS - Cross-Site Scripting]
+     No arquivo "frontend/src/scripts/dom/render.js", temos:
+     ```javascript
+     userDiv.innerHTML = `
+         <div class="card user-card h-100" id="${user.id}">
+             <div class="card-body">
+                 <h5 class="card-title">${user.name}</h5>
+                 ...
+     `;
+     ```
+     - O que aconteceria se um usuário cadastrasse o nome como:
+       `<img src="invalid" onerror="alert('XSS Atacado!')">` ?
+     - Como esse código pode ser corrigido para evitar ataques XSS (Cross-Site
+       Scripting) mantendo a estrutura visual?
+
+5.2. [PERMISSÕES DE ARQUIVO E DOCKER]
+     No arquivo "backend/Dockerfile", encontra-se a seguinte linha:
+     `RUN chmod -R 777 data/`
+     - Por que o desenvolvedor incluiu essa linha (qual problema ele tentou resolver
+       com relação à escrita do arquivo SQLite pelo PHP dentro do container)?
+     - Por que conceder permissão 777 (`rwxrwxrwx`) é considerado uma má prática de
+       segurança e como isso poderia ser configurado de forma mais segura?
+
+5.3. [CONTROLE DE ACESSO E CORS]
+     No arquivo "backend/public/index.php":
+     `in_array($origin, $allowedOrigins) ? header("Access-Control-Allow-Origin: $origin") : null;`
+     - O que impede uma aplicação rodando em `http://meusite-malicioso.com` de
+       fazer requisições via navegador do cliente para a API?
+     - Se alguém fizer uma requisição via terminal usando `curl` ou Postman, a
+       política de CORS impedirá o acesso à API? Explique por que o CORS é uma
+       proteção do navegador e não do servidor.
+
+5.4. [INTEGRIDADE E DUPLICIDADE DE DADOS]
+     Na tabela `users` (`CREATE TABLE IF NOT EXISTS users (...)`), não existe a
+     restrição `UNIQUE` na coluna `email`.
+     - O que acontece se dois usuários forem cadastrados com o mesmo e-mail?
+     - Quais alterações seriam necessárias na tabela SQLite e no serviço
+       `createUser()` para impedir cadastros com e-mails duplicados?
+
+================================================================================
+6. DEVOPS, DOCKER E DESEMPENHO
+================================================================================
+
+6.1. No arquivo "compose.yaml", o serviço backend possui a seguinte configuração:
+     ```yaml
+     volumes:
+       - ./backend/data:/app/data
+     ```
+     - O que esse mapeamento de volume (bind mount) faz?
+     - Se você destruir o container com `docker compose down` e recriá-lo com
+       `docker compose up -d`, os usuários cadastrados serão perdidos ou
+       preservados? Por quê?
+
+6.2. O Dockerfile do backend inicia a aplicação com o comando:
+     `CMD ["php", "-S", "0.0.0.0:80", "-t", "public", "public/index.php"]`
+     - Qual é a documentação oficial do PHP a respeito do uso do servidor embutido
+       (`php -S`) em ambientes de produção?
+     - Por que o servidor embutido do PHP é monotarefa (single-threaded) por padrão
+       e como isso se conecta com o comando `sleep(10)` em `services.php`?
+     - Qual stack alternativa para PHP seria recomendada para um ambiente de
+       produção de alta concorrência (ex.: Nginx + PHP-FPM)?
+
+6.3. Analise o arquivo "frontend/Dockerfile". Ele implementa um processo de
+     construção em múltiplos estágios (Multi-stage build):
+     - Estágio 1: `node:22-alpine AS build`
+     - Estágio 2: `httpd:alpine`
+     Qual é a principal vantagem de usar multi-stage build para o frontend em vez
+     de servir a aplicação diretamente com o Node.js em produção?
+     Existe alguma linha redundante ou desnecessária no estágio 1 do
+     "frontend/Dockerfile"? (Dica: observe a linha 5 do arquivo).
+
+================================================================================
+7. QUESTÕES DE MÚLTIPLA ESCOLHA
+================================================================================
+
+7.1. Ao enviar uma requisição PATCH para `/api/users?id=1` com o payload
+     `{"age": "25"}`, o que ocorre na camada de persistência do backend?
+     (A) O registro é rejeitado porque o PUT é obrigatório para alterar a idade.
+     (B) O campo `age` é convertido para inteiro e somente ele é atualizado no
+         banco de dados SQLite.
+     (C) Os campos `name` e `email` do usuário são apagados (ficam nulos).
+     (D) A API retorna o erro 405 Method Not Allowed.
+
+7.2. Qual é a finalidade da função `array_intersect_key` utilizada em
+     `backend/src/services.php` na linha 63?
+     (A) Ordenar as chaves do payload em ordem alfabética.
+     (B) Prevenir Mass Assignment, garantindo que somente as colunas permitidas
+         ('name', 'age', 'email') sejam repassadas para atualização.
+     (C) Validar se todos os campos obrigatórios estão preenchidos.
+     (D) Criptografar as informações enviadas pelo usuário antes do INSERT.
+
+7.3. Se um cliente tentar fazer uma requisição POST para a URL `/api/produtos`,
+     qual será a resposta retornada pela aplicação?
+     (A) 200 OK com array vazio.
+     (B) 400 Bad Request.
+     (C) 404 Not Found com corpo `{"error": "Not found"}`.
+     (D) 500 Internal Server Error.
+
+7.4. No arquivo `frontend/src/app.js`, caso o usuário esteja no modo de edição e
+     altere apenas o campo `name` mantendo `age` e `email` iguais, qual método
+     HTTP o Axios disparará?
+     (A) PUT
+     (B) POST
+     (C) PATCH
+     (D) OPTIONS
+
+7.5. Em relação à proteção contra SQL Injection no método `insertUser()`,
+     qual mecanismo é empregado?
+     (A) Uso de `mysqli_real_escape_string`.
+     (B) Expressão regular com `preg_replace` que remove caracteres especiais.
+     (C) Uso de PDO com Prepared Statements e placeholders posFollowers (`?`).
+     (D) Nenhuma proteção é adotada; a query é vulnerável.
+
+--------------------------------------------------------------------------------
+GABARITO DAS QUESTÕES DE MÚLTIPLA ESCOLHA:
+7.1 -> (B)
+7.2 -> (B)
+7.3 -> (C)
+7.4 -> (C)
+7.5 -> (C)
+--------------------------------------------------------------------------------
+
+================================================================================
+8. DESAFIOS PRÁTICOS DE REFATORAÇÃO E IMPLEMENTAÇÃO
+================================================================================
+
+8.1. [DESAFIO BACKEND: Paginação e Busca]
+     Atualmente, a rota GET `/api/users` retorna todos os usuários cadastrados
+     em lote único (`SELECT id, name, age, email FROM users ORDER BY id`).
+     - Como você implementaria suporte a parâmetros de busca e paginação, como
+       `/api/users?page=1&limit=10&search=Diego`?
+     - Quais alterações seriam feitas nas funções `handleGet()`, `getAllUsers()`
+       e `loadData()`?
+
+8.2. [DESAFIO SEGURANÇA: Prevenção de XSS no Frontend]
+     Refatore o método `renderUsers()` em `frontend/src/scripts/dom/render.js`
+     substituindo a atribuição direta a `innerHTML` por criação explícita de
+     elementos com `document.createElement()`, `textContent` e `classList.add()`,
+     ou criando uma função sanitizadora `escapeHtml()`.
+
+8.3. [DESAFIO UX/FRONTEND: Feedback Visual e Bloqueio de Botão]
+     Devido ao `sleep(10)` presente no método `createUser`, o formulário fica 10
+     segundos sem dar retorno ao usuário.
+     - Como você alteraria `frontend/src/app.js` para desabilitar o botão de submit,
+       exibir um spinner do Bootstrap ("Saving...") e impedir múltiplos cliques
+       acidentais enquanto a requisição estiver pendente?
+
+8.4. [DESAFIO ARQUITETURAL: Migração para Rotas Amigáveis]
+     Altere a arquitetura de roteamento para que a exclusão e edição ocorram na
+     URI REST tradicional:
+     - DELETE `/api/users/1` em vez de DELETE `/api/users?id=1`
+     - PUT `/api/users/1` em vez de PUT `/api/users?id=1`
+     - PATCH `/api/users/1` em vez de PATCH `/api/users?id=1`
+     Como ficaria a expressão regular ou o parsing de URI no `public/index.php`?
+
+================================================================================
+FIM DO QUESTIONÁRIO
+================================================================================

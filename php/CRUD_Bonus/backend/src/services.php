@@ -24,9 +24,7 @@ function createUser(?array $input): array
     if ($error) {
         return ['error' => $error, 'status' => 400];
     }
-    
-    sleep(10);
-
+    sleep(2);
 
     $user = insertUser([
         'name' => trim($input['name']),
