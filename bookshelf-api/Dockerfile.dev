@@ -1,0 +1,22 @@
+FROM php:8.4-cli-trixie
+
+COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        libzip-dev \
+    && docker-php-ext-install pdo_mysql zip bcmath \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY . .
+
+# validate the lock file and include development dependencies
+RUN composer validate --no-check-publish \
+    && composer install --no-interaction --prefer-dist \
+    && composer check-platform-reqs
+
+EXPOSE 8000
+
+# the project bind mount is available only when the container starts
+CMD ["sh", "-c", "composer validate --no-check-publish && composer install --no-interaction --prefer-dist && composer check-platform-reqs && exec php artisan serve --host=0.0.0.0"]
